@@ -26,6 +26,9 @@ jobs:
       with:
         submodules: 'true'
         fetch-depth: 0
+    - name: Install CMake
+      run: |
+        brew install cmake
     - name: Update Xcode
       id: Update-Xcode
       uses: maxim-lobanov/setup-xcode@v1
@@ -66,6 +69,7 @@ jobs:
         name: futurerestore-macOS-ASAN
         path: |
           ${{ github.workspace }}/futurerestore-macOS-*-ASAN.tar.xz
+
   Linux:
     runs-on: ubuntu-latest
     steps:
@@ -75,6 +79,10 @@ jobs:
         with:
           submodules: 'true'
           fetch-depth: 0
+      - name: Install Dependencies on Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
       - name: Linux Build
         id: Linux
         uses: addnab/docker-run-action@v3
@@ -85,20 +93,11 @@ jobs:
             /tmp/Builder/repos/futurerestore/.github/workflows/linux-bootstrap.sh
             /tmp/Builder/repos/futurerestore/.github/workflows/linux-build.sh
             /tmp/Builder/repos/futurerestore/.github/workflows/linux-post.sh
-            mkdir -p ${{ github.workspace }}/.github/workflows/
       - name: Linux x86_64 RELEASE Build
         id: Linux-x86_64-RELEASE-Build
         run: |
           sudo chown -R $USER:$USER ${{ github.workspace }}/../
           mv ${{ github.workspace }}/.github/workflows/futurerestore1.tar.xz ${{ github.workspace }}/.github/workflows/$(cat ${{ github.workspace }}/.github/workflows/name1.txt)
-      - name: Linux x86_64 DEBUG Build
-        id: Linux-x86_64-DEBUG-Build
-        run: |
-          mv ${{ github.workspace }}/.github/workflows/futurerestore2.tar.xz ${{ github.workspace }}/.github/workflows/$(cat ${{ github.workspace }}/.github/workflows/name2.txt)
-      - name: Linux x86_64 ASAN Build
-        id: Linux-x86_64-ASAN-Build
-        run: |
-          mv ${{ github.workspace }}/.github/workflows/futurerestore3.tar.xz ${{ github.workspace }}/.github/workflows/$(cat ${{ github.workspace }}/.github/workflows/name3.txt)
       - name: futurerestore Linux x86_64 RELEASE Archive
         id: futurerestore-Linux-x86_64-RELEASE-Archive
         uses: actions/upload-artifact@v4
@@ -106,17 +105,3 @@ jobs:
           name: futurerestore-Linux-x86_64-RELEASE
           path: |
             ${{ github.workspace }}/.github/workflows/futurerestore-Linux-x86_64*-RELEASE.tar.xz
-      - name: futurerestore Linux x86_64 DEBUG Archive
-        id: futurerestore-Linux-x86_64-DEBUG-Archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: futurerestore-Linux-x86_64-DEBUG
-          path: |
-            ${{ github.workspace }}/.github/workflows/futurerestore-Linux-x86_64*-DEBUG.tar.xz
-      - name: futurerestore Linux x86_64 ASAN Archive
-        id: futurerestore-Linux-x86_64-ASAN-Archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: futurerestore-Linux-x86_64-ASAN
-          path: |
-            ${{ github.workspace }}/.github/workflows/futurerestore-Linux-x86_64*-ASAN.tar.xz
